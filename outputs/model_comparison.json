@@ -1,0 +1,60 @@
+{
+    "segmentation": {
+        "metrics": {
+            "KMeans": {
+                "Silhouette": 0.3649707840057233,
+                "Davies-Bouldin": 0.9298775351487724
+            },
+            "GMM": {
+                "Silhouette": 0.2234733037969862,
+                "Davies-Bouldin": 1.1825230739099437
+            },
+            "DBSCAN": {
+                "Silhouette": 0.277900498428542,
+                "Davies-Bouldin": 1.0101124386585578
+            }
+        },
+        "best_model": "KMeans"
+    },
+    "churn": {
+        "metrics": {
+            "Logistic Regression": {
+                "Accuracy": 0.7322611163670766,
+                "Precision": 0.7577741407528642,
+                "Recall": 0.774247491638796,
+                "F1 Score": 0.7659222497932175,
+                "ROC AUC": 0.8010397767431015
+            },
+            "Random Forest": {
+                "Accuracy": 0.7426679280983917,
+                "Precision": 0.7432835820895523,
+                "Recall": 0.8327759197324415,
+                "F1 Score": 0.7854889589905363,
+                "ROC AUC": 0.8049817474369904
+            },
+            "XGBoost": {
+                "Accuracy": 0.7256385998107853,
+                "Precision": 0.7436708860759493,
+                "Recall": 0.7859531772575251,
+                "F1 Score": 0.7642276422764228,
+                "ROC AUC": 0.7852136023491522
+            }
+        },
+        "best_model": "Random Forest"
+    },
+    "forecasting": {
+        "metrics": {
+            "Prophet": {
+                "RMSE": 30284.558511300427,
+                "MAE": 14848.329595938158,
+                "MAPE": 24.604637240760834
+            },
+            "XGBoost": {
+                "RMSE": 29347.5384724638,
+                "MAE": 12338.457503540038,
+                "MAPE": 22.638928659892795
+            }
+        },
+        "best_model": "XGBoost"
+    }
+}
