@@ -17,12 +17,108 @@ st.markdown(
     
     html, body, [class*="css"] {
         font-family: 'Outfit', 'Inter', sans-serif;
+        background-color: #0B0F19;
     }
     
+    /* Hero Section Styles */
+    .hero-section {
+        background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+    }
+    .hero-title {
+        font-size: 2.25rem;
+        font-weight: 800;
+        color: #F8FAFC;
+        margin: 0 0 0.5rem 0;
+        letter-spacing: -0.025em;
+    }
+    .hero-desc {
+        color: #E2E8F0;
+        font-size: 1.1rem;
+        margin: 0 0 0.75rem 0;
+        font-weight: 300;
+    }
+    .hero-purpose {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: rgba(99, 102, 241, 0.15);
+        color: #818CF8;
+        border: 1px solid rgba(99, 102, 241, 0.25);
+        border-radius: 8px;
+        padding: 0.35rem 0.75rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    /* KPI Card Styles */
+    .kpi-card {
+        background: linear-gradient(135deg, rgba(17, 24, 39, 0.75) 0%, rgba(30, 41, 59, 0.55) 100%);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.3);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 1rem;
+    }
+    .kpi-card::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.03), transparent);
+        transform: translateX(-100%);
+        transition: transform 0.5s ease;
+    }
+    .kpi-card:hover::before {
+        transform: translateX(100%);
+    }
+    .kpi-card:hover {
+        transform: translateY(-4px);
+        border-color: rgba(99, 102, 241, 0.4);
+        box-shadow: 0 12px 25px -5px rgba(99, 102, 241, 0.2);
+    }
+    .kpi-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+    .kpi-title {
+        color: #94A3B8;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+    .kpi-icon {
+        font-size: 1.4rem;
+        color: #818CF8;
+        background: rgba(99, 102, 241, 0.12);
+        padding: 0.3rem 0.5rem;
+        border-radius: 8px;
+    }
+    .kpi-value {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #F8FAFC;
+        line-height: 1.2;
+        margin-top: 0.25rem;
+    }
+
+    /* Insight Card Styles */
     .insight-card {
         background: rgba(99, 102, 241, 0.08);
         border: 1px solid rgba(99, 102, 241, 0.25);
-        border-radius: 8px;
+        border-radius: 12px;
         padding: 1.25rem;
         margin-top: 1.5rem;
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
@@ -35,15 +131,35 @@ st.markdown(
         display: flex;
         align-items: center;
         gap: 0.5rem;
+        font-size: 1.05rem;
     }
     </style>
     """,
     unsafe_allow_html=True
 )
 
-st.title("📈 Demand Forecasting")
-st.markdown("Group 3 Demand Forecasting Dashboard. Forecast future daily transaction revenue volumes and evaluate model accuracy.")
-st.divider()
+def draw_kpi_card(col, title, value, icon):
+    col.markdown(f"""
+    <div class="kpi-card">
+        <div class="kpi-header">
+            <span class="kpi-title">{title}</span>
+            <span class="kpi-icon">{icon}</span>
+        </div>
+        <div class="kpi-value">{value}</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+# Hero Section
+st.markdown(
+    """
+    <div class="hero-section">
+        <h1 class="hero-title">🔮 Demand Forecasting</h1>
+        <p class="hero-desc">Forecast future daily transaction revenue volumes and evaluate model accuracy.</p>
+        <span class="hero-purpose">🎯 Business Purpose: Project upcoming daily sales demand to optimize marketing spend and operational resource planning.</span>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
 BASE_DIR = Path(__file__).resolve().parents[1]
 forecast_csv_path = BASE_DIR / "outputs" / "sales_forecast.csv"
@@ -70,10 +186,10 @@ else:
     
     # Display top-level KPIs before charts
     col1, col2, col3, col4 = st.columns(4)
-    col1.metric("Winning Forecast Model", best_model_name)
-    col2.metric("Test RMSE (Error Margin)", f"${best_metrics['RMSE']:.2f}")
-    col3.metric("Test MAE (Mean Abs Error)", f"${best_metrics['MAE']:.2f}")
-    col4.metric("Test MAPE (Percentage Error)", f"{best_metrics['MAPE']:.2f}%")
+    draw_kpi_card(col1, "Winning Forecast Model", best_model_name, "🏆")
+    draw_kpi_card(col2, "Test RMSE (Error Margin)", f"${best_metrics['RMSE']:.2f}", "📈")
+    draw_kpi_card(col3, "Test MAE (Mean Abs Error)", f"${best_metrics['MAE']:.2f}", "⚖️")
+    draw_kpi_card(col4, "Test MAPE (Pct Error)", f"{best_metrics['MAPE']:.2f}%", "📊")
     
     st.divider()
     
@@ -83,10 +199,10 @@ else:
     
     # Create Tabs
     tab_hist, tab_forecast, tab_val, tab_future, tab_metrics = st.tabs([
-        "📊 Historical Sales",
-        "📈 Sales & 30-Day Forecast",
-        "⚖️ Actual vs Predicted",
-        "🔮 Future 30 Days Forecast",
+        "📊 Historical Daily Sales",
+        "🔮 Integrated Forecasts",
+        "⚖️ Model Validation Fit",
+        "🔮 Future Day-by-Day Forecasts",
         "📋 Forecast Metrics & Details"
     ])
     
@@ -101,10 +217,11 @@ else:
         )
         fig_hist.update_layout(
             template="plotly_dark",
-            xaxis_title="Date",
-            yaxis_title="Total Revenue ($)",
+            xaxis=dict(title="Date", showgrid=True, gridcolor="rgba(255,255,255,0.05)"),
+            yaxis=dict(title="Total Revenue ($)", showgrid=True, gridcolor="rgba(255,255,255,0.05)"),
             paper_bgcolor="rgba(0,0,0,0)",
-            plot_bgcolor="rgba(0,0,0,0)"
+            plot_bgcolor="rgba(0,0,0,0)",
+            margin=dict(l=40, r=20, t=50, b=40)
         )
         st.plotly_chart(fig_hist, use_container_width=True)
         
@@ -114,7 +231,7 @@ else:
         st.markdown(
             f"""
             <div class="insight-card">
-                <div class="insight-title">💡 Historical Sales Insight</div>
+                <div class="insight-title">📌 Key Insight: Historical Sales Trends</div>
                 <p style="margin:0; color:#E2E8F0;">
                     Average historical daily sales are <b>${avg_hist:,.2f}</b>. 
                     The highest sales spike occurred on <b>{max_hist_row['ds'].strftime('%d %B %Y')}</b>, reaching <b>${max_hist_row['y']:,.2f}</b>.
@@ -175,18 +292,19 @@ else:
         fig.update_layout(
             template="plotly_dark",
             title="Complete Daily Revenue Forecast with Confidence Intervals",
-            xaxis_title="Timeline",
-            yaxis_title="Daily Revenue ($)",
+            xaxis=dict(title="Timeline", showgrid=True, gridcolor="rgba(255,255,255,0.05)"),
+            yaxis=dict(title="Daily Revenue ($)", showgrid=True, gridcolor="rgba(255,255,255,0.05)"),
             hovermode="x unified",
             paper_bgcolor="rgba(0,0,0,0)",
-            plot_bgcolor="rgba(0,0,0,0)"
+            plot_bgcolor="rgba(0,0,0,0)",
+            margin=dict(l=40, r=20, t=50, b=40)
         )
         st.plotly_chart(fig, use_container_width=True)
         
         st.markdown(
             f"""
             <div class="insight-card">
-                <div class="insight-title">💡 Forecast Model Fit Insight</div>
+                <div class="insight-title">📌 Key Insight: Forecast Model Projections</div>
                 <p style="margin:0; color:#E2E8F0;">
                     The dashboard shows the model fitting historical behavior closely (indicated by the dashed green line) 
                     and extending into a 30-day projection (orange line) with statistical variance bands based on seasonal variance.
@@ -213,7 +331,10 @@ else:
         fig_scatter.update_layout(
             template="plotly_dark",
             paper_bgcolor="rgba(0,0,0,0)",
-            plot_bgcolor="rgba(0,0,0,0)"
+            plot_bgcolor="rgba(0,0,0,0)",
+            xaxis=dict(showgrid=True, gridcolor="rgba(255,255,255,0.05)"),
+            yaxis=dict(showgrid=True, gridcolor="rgba(255,255,255,0.05)"),
+            margin=dict(l=40, r=20, t=50, b=40)
         )
         st.plotly_chart(fig_scatter, use_container_width=True)
         
@@ -222,7 +343,7 @@ else:
         st.markdown(
             f"""
             <div class="insight-card">
-                <div class="insight-title">💡 Fit Accuracy Insight</div>
+                <div class="insight-title">📌 Key Insight: Prediction Alignment & Correlation</div>
                 <p style="margin:0; color:#E2E8F0;">
                     The correlation coefficient between predictions and actual targets is <b>{corr:.4f}</b>. 
                     The diagonal trendline represents a perfect alignment; data points clustered tightly around it indicate high precision.
@@ -263,10 +384,11 @@ else:
         fig_future.update_layout(
             template="plotly_dark",
             title="30-Day Projections Detail",
-            xaxis_title="Forecast Date",
-            yaxis_title="Expected Revenue ($)",
+            xaxis=dict(title="Forecast Date", showgrid=True, gridcolor="rgba(255,255,255,0.05)"),
+            yaxis=dict(title="Expected Revenue ($)", showgrid=True, gridcolor="rgba(255,255,255,0.05)"),
             paper_bgcolor="rgba(0,0,0,0)",
-            plot_bgcolor="rgba(0,0,0,0)"
+            plot_bgcolor="rgba(0,0,0,0)",
+            margin=dict(l=40, r=20, t=50, b=40)
         )
         st.plotly_chart(fig_future, use_container_width=True)
         
@@ -291,7 +413,7 @@ else:
         st.markdown(
             f"""
             <div class="insight-card">
-                <div class="insight-title">💡 Forecast Projection Insight</div>
+                <div class="insight-title">📌 Key Insight: Forward Looking Demand</div>
                 <p style="margin:0; color:#E2E8F0;">
                     The mean predicted revenue for the upcoming 30 days is <b>${avg_forecast_val:,.2f}/day</b>, 
                     guiding operational demand planning and inventory management levels.
@@ -317,7 +439,7 @@ else:
         st.markdown(
             """
             <div class="insight-card" style="background: rgba(99,102,241,0.05); border-color: rgba(99,102,241,0.2);">
-                <div class="insight-title">💡 Operational Guidelines</div>
+                <div class="insight-title">📌 Strategic Guidelines: Prophet vs XGBoost</div>
                 <p style="margin:0; color:#D1D5DB;">
                     <b>Prophet</b> models fit multi-seasonal patterns (weekly cycles, yearly holiday seasons), while <b>XGBoost</b> excels at non-linear lag-feature mappings. 
                     The system dynamically selects the configuration that delivers the lowest RMSE to safeguard supply chains from stockouts or capital overcommitment.
@@ -326,3 +448,4 @@ else:
             """,
             unsafe_allow_html=True
         )
+

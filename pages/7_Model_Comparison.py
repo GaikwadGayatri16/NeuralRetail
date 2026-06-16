@@ -14,14 +14,116 @@ st.markdown(
     
     html, body, [class*="css"] {
         font-family: 'Outfit', 'Inter', sans-serif;
+        background-color: #0B0F19;
+    }
+    
+    /* Hero Section Styles */
+    .hero-section {
+        background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+    }
+    .hero-title {
+        font-size: 2.25rem;
+        font-weight: 800;
+        color: #F8FAFC;
+        margin: 0 0 0.5rem 0;
+        letter-spacing: -0.025em;
+    }
+    .hero-desc {
+        color: #E2E8F0;
+        font-size: 1.1rem;
+        margin: 0 0 0.75rem 0;
+        font-weight: 300;
+    }
+    .hero-purpose {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: rgba(99, 102, 241, 0.15);
+        color: #818CF8;
+        border: 1px solid rgba(99, 102, 241, 0.25);
+        border-radius: 8px;
+        padding: 0.35rem 0.75rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    /* KPI Card Styles */
+    .kpi-card {
+        background: linear-gradient(135deg, rgba(17, 24, 39, 0.75) 0%, rgba(30, 41, 59, 0.55) 100%);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.3);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 1rem;
+    }
+    .kpi-card::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.03), transparent);
+        transform: translateX(-100%);
+        transition: transform 0.5s ease;
+    }
+    .kpi-card:hover::before {
+        transform: translateX(100%);
+    }
+    .kpi-card:hover {
+        transform: translateY(-4px);
+        border-color: rgba(99, 102, 241, 0.4);
+        box-shadow: 0 12px 25px -5px rgba(99, 102, 241, 0.2);
+    }
+    .kpi-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+    .kpi-title {
+        color: #94A3B8;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+    .kpi-icon {
+        font-size: 1.4rem;
+        color: #818CF8;
+        background: rgba(99, 102, 241, 0.12);
+        padding: 0.3rem 0.5rem;
+        border-radius: 8px;
+    }
+    .kpi-value {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #F8FAFC;
+        line-height: 1.2;
+        margin-top: 0.25rem;
     }
     
     .winning-card {
-        background: rgba(16, 185, 129, 0.08);
-        border: 1px solid rgba(16, 185, 129, 0.25);
-        border-radius: 12px;
-        padding: 1.5rem;
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(52, 211, 153, 0.05) 100%);
+        border: 1px solid rgba(16, 185, 129, 0.3);
+        border-radius: 16px;
+        padding: 1.75rem;
         margin-top: 1.25rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        transition: all 0.3s ease;
+    }
+    .winning-card:hover {
+        transform: translateY(-2px);
+        border-color: rgba(16, 185, 129, 0.5);
+        box-shadow: 0 8px 20px rgba(16, 185, 129, 0.15);
     }
     
     .winning-title {
@@ -34,10 +136,11 @@ st.markdown(
         margin-bottom: 0.5rem;
     }
     
+    /* Insight Card Styles */
     .insight-card {
         background: rgba(99, 102, 241, 0.08);
         border: 1px solid rgba(99, 102, 241, 0.25);
-        border-radius: 8px;
+        border-radius: 12px;
         padding: 1.25rem;
         margin-top: 1.5rem;
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
@@ -50,15 +153,35 @@ st.markdown(
         display: flex;
         align-items: center;
         gap: 0.5rem;
+        font-size: 1.05rem;
     }
     </style>
     """,
     unsafe_allow_html=True
 )
 
-st.title("🏆 Model Comparison")
-st.markdown("Consolidated model evaluation dashboard. Compare algorithm metrics, error distributions, and identify winner models.")
-st.divider()
+def draw_kpi_card(col, title, value, icon):
+    col.markdown(f"""
+    <div class="kpi-card">
+        <div class="kpi-header">
+            <span class="kpi-title">{title}</span>
+            <span class="kpi-icon">{icon}</span>
+        </div>
+        <div class="kpi-value">{value}</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+# Hero Section
+st.markdown(
+    """
+    <div class="hero-section">
+        <h1 class="hero-title">🏆 Model Comparison Leaderboard</h1>
+        <p class="hero-desc">Consolidated model evaluation dashboard. Compare algorithm metrics, error distributions, and identify winner models.</p>
+        <span class="hero-purpose">🎯 Business Purpose: Benchmark machine learning performance across segmentation, classification, and forecasting pipelines.</span>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
 BASE_DIR = Path(__file__).resolve().parents[1]
 metrics_path = BASE_DIR / "outputs" / "model_comparison.json"
@@ -76,10 +199,10 @@ else:
     
     # KPI metrics cards on top
     col1, col2, col3, col4 = st.columns(4)
-    col1.metric("Segmentation Winner", best_seg)
-    col2.metric("Churn Model Winner", best_churn)
-    col3.metric("Forecasting Winner", best_fore)
-    col4.metric("Consolidation Status", "✅ Completed")
+    draw_kpi_card(col1, "Segmentation Winner", best_seg, "👥")
+    draw_kpi_card(col2, "Churn Model Winner", best_churn, "⚠️")
+    draw_kpi_card(col3, "Forecasting Winner", best_fore, "📈")
+    draw_kpi_card(col4, "Consolidation Status", "✅ Completed", "📊")
     
     st.divider()
     
@@ -123,7 +246,7 @@ else:
         st.markdown(
             f"""
             <div class="insight-card">
-                <div class="insight-title">💡 Segmentation Insights</div>
+                <div class="insight-title">📌 Key Insight: Segmentation Accuracy</div>
                 <p style="margin:0; color:#E2E8F0;">
                     `{best_seg}` achieves the optimal balance between high intra-cluster similarity and distinct inter-cluster separation, 
                     ensuring that marketing personas correspond to distinct customer behaviors.
@@ -172,7 +295,7 @@ else:
         st.markdown(
             f"""
             <div class="insight-card">
-                <div class="insight-title">💡 Churn Prediction Insights</div>
+                <div class="insight-title">📌 Key Insight: Classification Metrics</div>
                 <p style="margin:0; color:#E2E8F0;">
                     F1-Score was chosen as the primary selection metric to strike a business balance between false positives (marketing cost leakages) 
                     and false negatives (unflagged churned customers). `{best_churn}` provides the most robust predictions.
@@ -216,7 +339,7 @@ else:
         st.markdown(
             f"""
             <div class="insight-card">
-                <div class="insight-title">💡 Forecasting Insights</div>
+                <div class="insight-title">📌 Key Insight: Forecasting Metrics</div>
                 <p style="margin:0; color:#E2E8F0;">
                     The winning model `{best_fore}` exhibits the lowest root mean squared error, meaning it is least prone to massive seasonal 
                     prediction errors, which is critical for supply chain stability.
@@ -252,7 +375,7 @@ else:
         with col_c2:
             st.markdown(
                 f"""
-                <div class="winning-card" style="border-color: rgba(245,158,11,0.25);">
+                <div class="winning-card" style="border-color: rgba(245,158,11,0.3); background: linear-gradient(135deg, rgba(245,158,11,0.1) 0%, rgba(245,158,11,0.05) 100%);">
                     <div class="winning-title" style="color:#FBBF24;">⚠️ Churn Prediction</div>
                     <h3 style="margin-top:0.5rem; margin-bottom:0.25rem;">{best_churn}</h3>
                     <p style="color:#94A3B8; font-size:0.9rem; margin-bottom:0.75rem;">Group 2 Primary Model</p>
@@ -268,7 +391,7 @@ else:
         with col_c3:
             st.markdown(
                 f"""
-                <div class="winning-card" style="border-color: rgba(99,102,241,0.25);">
+                <div class="winning-card" style="border-color: rgba(99,102,241,0.3); background: linear-gradient(135deg, rgba(99,102,241,0.1) 0%, rgba(99,102,241,0.05) 100%);">
                     <div class="winning-title" style="color:#818CF8;">📈 Demand Forecasting</div>
                     <h3 style="margin-top:0.5rem; margin-bottom:0.25rem;">{best_fore}</h3>
                     <p style="color:#94A3B8; font-size:0.9rem; margin-bottom:0.75rem;">Group 3 Primary Model</p>
@@ -280,3 +403,4 @@ else:
                 """,
                 unsafe_allow_html=True
             )
+

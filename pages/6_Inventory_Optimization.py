@@ -14,6 +14,101 @@ st.markdown(
     
     html, body, [class*="css"] {
         font-family: 'Outfit', 'Inter', sans-serif;
+        background-color: #0B0F19;
+    }
+    
+    /* Hero Section Styles */
+    .hero-section {
+        background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+    }
+    .hero-title {
+        font-size: 2.25rem;
+        font-weight: 800;
+        color: #F8FAFC;
+        margin: 0 0 0.5rem 0;
+        letter-spacing: -0.025em;
+    }
+    .hero-desc {
+        color: #E2E8F0;
+        font-size: 1.1rem;
+        margin: 0 0 0.75rem 0;
+        font-weight: 300;
+    }
+    .hero-purpose {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: rgba(99, 102, 241, 0.15);
+        color: #818CF8;
+        border: 1px solid rgba(99, 102, 241, 0.25);
+        border-radius: 8px;
+        padding: 0.35rem 0.75rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    /* KPI Card Styles */
+    .kpi-card {
+        background: linear-gradient(135deg, rgba(17, 24, 39, 0.75) 0%, rgba(30, 41, 59, 0.55) 100%);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.3);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 1rem;
+    }
+    .kpi-card::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.03), transparent);
+        transform: translateX(-100%);
+        transition: transform 0.5s ease;
+    }
+    .kpi-card:hover::before {
+        transform: translateX(100%);
+    }
+    .kpi-card:hover {
+        transform: translateY(-4px);
+        border-color: rgba(99, 102, 241, 0.4);
+        box-shadow: 0 12px 25px -5px rgba(99, 102, 241, 0.2);
+    }
+    .kpi-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+    .kpi-title {
+        color: #94A3B8;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+    .kpi-icon {
+        font-size: 1.4rem;
+        color: #818CF8;
+        background: rgba(99, 102, 241, 0.12);
+        padding: 0.3rem 0.5rem;
+        border-radius: 8px;
+    }
+    .kpi-value {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #F8FAFC;
+        line-height: 1.2;
+        margin-top: 0.25rem;
     }
     
     .status-alert {
@@ -22,12 +117,14 @@ st.markdown(
         border-radius: 12px;
         padding: 1.25rem;
         margin-bottom: 1.5rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
     
+    /* Insight Card Styles */
     .insight-card {
         background: rgba(99, 102, 241, 0.08);
         border: 1px solid rgba(99, 102, 241, 0.25);
-        border-radius: 8px;
+        border-radius: 12px;
         padding: 1.25rem;
         margin-top: 1.5rem;
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
@@ -40,15 +137,35 @@ st.markdown(
         display: flex;
         align-items: center;
         gap: 0.5rem;
+        font-size: 1.05rem;
     }
     </style>
     """,
     unsafe_allow_html=True
 )
 
-st.title("📦 Inventory Optimization")
-st.markdown("Group 3 Demand Forecasting & Inventory Dashboard. Run ABC inventory categorization, analyze daily velocities, and automate replenishment triggers (ROP, Safety Stock, EOQ).")
-st.divider()
+def draw_kpi_card(col, title, value, icon):
+    col.markdown(f"""
+    <div class="kpi-card">
+        <div class="kpi-header">
+            <span class="kpi-title">{title}</span>
+            <span class="kpi-icon">{icon}</span>
+        </div>
+        <div class="kpi-value">{value}</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+# Hero Section
+st.markdown(
+    """
+    <div class="hero-section">
+        <h1 class="hero-title">📦 Inventory Optimization</h1>
+        <p class="hero-desc">Run ABC inventory categorization, analyze daily velocities, and automate replenishment triggers (ROP, Safety Stock, EOQ).</p>
+        <span class="hero-purpose">🎯 Business Purpose: Optimize warehousing cost structures, prevent costly stockouts of Class A items, and automate ordering formulas.</span>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
 BASE_DIR = Path(__file__).resolve().parents[1]
 abc_path = BASE_DIR / "outputs" / "abc_analysis.csv"
@@ -75,10 +192,10 @@ else:
     
     # Draw KPI cards
     col1, col2, col3, col4 = st.columns(4)
-    col1.metric("SKUs Evaluated", f"{total_skus:,}")
-    col2.metric("Urgent Restock Triggers", f"{reorder_count:,}", f"{reorder_count/total_skus:.1%} of SKUs", delta_color="inverse")
-    col3.metric("Class A SKUs (Core Value)", f"{class_a_count:,}", f"{(class_a_count/total_skus*100):.1f}% SKU share")
-    col4.metric("Fast-Moving Catalog Items", f"{fast_moving_count:,}")
+    draw_kpi_card(col1, "SKUs Evaluated", f"{total_skus:,}", "📊")
+    draw_kpi_card(col2, "Urgent Restock Triggers", f"{reorder_count:,}", "🚨")
+    draw_kpi_card(col3, "Class A SKUs (Core Value)", f"{class_a_count:,}", "💎")
+    draw_kpi_card(col4, "Fast-Moving Catalog Items", f"{fast_moving_count:,}", "🔥")
     
     st.divider()
     
@@ -115,7 +232,12 @@ else:
                 color="ABC_Class",
                 color_discrete_map={"A": "#EC4899", "B": "#8B5CF6", "C": "#3B82F6"}
             )
-            fig_rev.update_layout(template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
+            fig_rev.update_layout(
+                template="plotly_dark", 
+                paper_bgcolor="rgba(0,0,0,0)", 
+                plot_bgcolor="rgba(0,0,0,0)",
+                margin=dict(l=20, r=20, t=50, b=20)
+            )
             st.plotly_chart(fig_rev, use_container_width=True)
             
             # Dynamic Insight
@@ -124,7 +246,7 @@ else:
             st.markdown(
                 f"""
                 <div class="insight-card">
-                    <div class="insight-title">💡 Revenue Contribution Insight</div>
+                    <div class="insight-title">📌 Key Insight: Revenue Contribution</div>
                     <p style="margin:0; color:#E2E8F0;">
                         <b>Class A</b> items represent <b>{(a_rev/total_rev * 100):.2f}%</b> of total store revenue 
                         (valued at <b>${a_rev:,.2f}</b>). These high-value SKUs demand close daily monitoring.
@@ -141,7 +263,12 @@ else:
                 color="ABC_Class",
                 color_discrete_map={"A": "#EC4899", "B": "#8B5CF6", "C": "#3B82F6"}
             )
-            fig_cnt.update_layout(template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
+            fig_cnt.update_layout(
+                template="plotly_dark", 
+                paper_bgcolor="rgba(0,0,0,0)", 
+                plot_bgcolor="rgba(0,0,0,0)",
+                margin=dict(l=20, r=20, t=50, b=20)
+            )
             st.plotly_chart(fig_cnt, use_container_width=True)
             
             # Dynamic Insight
@@ -149,7 +276,7 @@ else:
             st.markdown(
                 f"""
                 <div class="insight-card">
-                    <div class="insight-title">💡 SKU Share Insight</div>
+                    <div class="insight-title">📌 Key Insight: SKU Share Ratio</div>
                     <p style="margin:0; color:#E2E8F0;">
                         <b>Class A</b> makes up only <b>{(a_count/total_skus * 100):.2f}%</b> of total catalog items ({a_count:,} SKUs), 
                         yet produces the overwhelming majority of revenue, illustrating the classic Pareto Principle.
@@ -182,7 +309,7 @@ else:
             st.markdown(
                 f"""
                 <div class="insight-card">
-                    <div class="insight-title">💡 Fast-Moving Item Insight</div>
+                    <div class="insight-title">📌 Key Insight: Fast-Moving Catalog Performance</div>
                     <p style="margin:0; color:#E2E8F0;">
                         The fastest-moving item is <b>{fastest_item['Description']}</b>, selling an average of 
                         <b>{fastest_item['AvgDailyQty']:.2f} units</b> per day.
@@ -204,7 +331,7 @@ else:
             st.markdown(
                 f"""
                 <div class="insight-card">
-                    <div class="insight-title">💡 Slow-Moving Item Insight</div>
+                    <div class="insight-title">📌 Key Insight: Slow-Moving Stock Assessment</div>
                     <p style="margin:0; color:#E2E8F0;">
                         The slowest-moving active item is <b>{slowest_item['Description']}</b>, averaging only 
                         <b>{slowest_item['AvgDailyQty']:.4f} units</b> sold per day.
@@ -225,7 +352,14 @@ else:
             hover_name="Description",
             color_discrete_map={"A": "#EC4899", "B": "#8B5CF6", "C": "#3B82F6"}
         )
-        fig_safety.update_layout(template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
+        fig_safety.update_layout(
+            template="plotly_dark", 
+            paper_bgcolor="rgba(0,0,0,0)", 
+            plot_bgcolor="rgba(0,0,0,0)",
+            yaxis=dict(showgrid=True, gridcolor="rgba(255,255,255,0.05)"),
+            xaxis=dict(showgrid=True, gridcolor="rgba(255,255,255,0.05)"),
+            margin=dict(l=40, r=20, t=50, b=40)
+        )
         st.plotly_chart(fig_safety, use_container_width=True)
         
         # Dynamic Insight
@@ -233,7 +367,7 @@ else:
         st.markdown(
             f"""
             <div class="insight-card">
-                <div class="insight-title">💡 Safety Stock Insight</div>
+                <div class="insight-title">📌 Key Insight: Safety Buffer Valuation</div>
                 <p style="margin:0; color:#E2E8F0;">
                     The average safety stock level across all evaluated products is <b>{avg_safety:.1f} units</b>. 
                     Safety stock provides a buffer against supply chain lead time volatility and random demand surges.
@@ -259,13 +393,20 @@ else:
             type="line", line=dict(dash="dash", color="grey"),
             x0=0, y0=0, x1=df_reorder["ReorderPoint"].max(), y1=df_reorder["ReorderPoint"].max()
         )
-        fig_rop.update_layout(template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
+        fig_rop.update_layout(
+            template="plotly_dark", 
+            paper_bgcolor="rgba(0,0,0,0)", 
+            plot_bgcolor="rgba(0,0,0,0)",
+            yaxis=dict(showgrid=True, gridcolor="rgba(255,255,255,0.05)"),
+            xaxis=dict(showgrid=True, gridcolor="rgba(255,255,255,0.05)"),
+            margin=dict(l=40, r=20, t=50, b=40)
+        )
         st.plotly_chart(fig_rop, use_container_width=True)
         
         st.markdown(
             """
             <div class="insight-card">
-                <div class="insight-title">💡 ROP Map Insight</div>
+                <div class="insight-title">📌 Key Insight: Reorder Triggers (ROP)</div>
                 <p style="margin:0; color:#E2E8F0;">
                     Items located <b>below the dashed reference line</b> (highlighted in red) have current stocks less than or equal to their Reorder Point, 
                     signaling a prompt replenishment order to avoid stockout.
@@ -282,8 +423,8 @@ else:
         st.markdown(
             f"""
             <div class="status-alert">
-                <h4>⚠️ Restock Action Needed: {reorder_count:,} SKUs require reordering.</h4>
-                <p style="margin:0;">Current inventory levels for these items are equal to or lower than their calculated <b>Reorder Point (ROP)</b>. Quantities suggest the **Economic Order Quantity (EOQ)**.</p>
+                <h4 style="margin:0; color: #FBBF24;">⚠️ Restock Action Needed: {reorder_count:,} SKUs require reordering.</h4>
+                <p style="margin-top: 0.5rem; margin-bottom: 0; color: #E2E8F0;">Current inventory levels for these items are equal to or lower than their calculated <b>Reorder Point (ROP)</b>. Quantities suggest the **Economic Order Quantity (EOQ)**.</p>
             </div>
             """,
             unsafe_allow_html=True
@@ -313,7 +454,7 @@ else:
         st.markdown(
             f"""
             <div class="insight-card">
-                <div class="insight-title">💡 Replenishment Priority Insight</div>
+                <div class="insight-title">📌 Key Insight: Restocking Priorities</div>
                 <p style="margin:0; color:#E2E8F0;">
                     Within the filtered set, there are <b>{class_a_reorder_count} Class A</b> items flagged for urgent reordering. 
                     These high-value items must be restocked first to protect major store revenue streams.
@@ -322,3 +463,4 @@ else:
             """,
             unsafe_allow_html=True
         )
+

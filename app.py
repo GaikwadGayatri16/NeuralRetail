@@ -20,6 +20,7 @@ st.markdown(
     .main .block-container {
         font-family: 'Outfit', 'Inter', sans-serif;
         padding-top: 1.5rem;
+        background-color: #0B0F19;
     }
     
     h1, h2, h3, h4, h5, h6 {
@@ -31,42 +32,110 @@ st.markdown(
     /* Premium Title Banner */
     .title-banner {
         background: linear-gradient(135deg, #4F46E5 0%, #06B6D4 100%);
-        padding: 2.5rem 2rem;
+        padding: 3rem 2rem;
         border-radius: 16px;
         box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.3);
         margin-bottom: 2rem;
         text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+    .title-banner::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: radial-gradient(circle at 15% 50%, rgba(255,255,255,0.1) 0%, transparent 60%);
+        pointer-events: none;
     }
     
     .title-banner h1 {
         margin: 0;
-        font-size: 2.75rem;
+        font-size: 3rem;
         letter-spacing: -0.025em;
-        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        text-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
     }
     
     .title-banner p {
         color: #E2E8F0;
-        font-size: 1.15rem;
-        margin-top: 0.5rem;
+        font-size: 1.25rem;
+        margin-top: 0.75rem;
         font-weight: 300;
     }
     
     /* Card Styles */
     .custom-card {
-        background: rgba(30, 41, 59, 0.7);
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        border-radius: 12px;
-        padding: 1.5rem;
+        background: linear-gradient(135deg, rgba(17, 24, 39, 0.7) 0%, rgba(30, 41, 59, 0.5) 100%);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        padding: 1.75rem;
         margin-bottom: 1.25rem;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.3);
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
     
     .custom-card:hover {
         transform: translateY(-2px);
-        box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.2);
-        border-color: rgba(99, 102, 241, 0.2);
+        box-shadow: 0 12px 25px -5px rgba(99, 102, 241, 0.2);
+        border-color: rgba(99, 102, 241, 0.3);
+    }
+
+    /* KPI Card Styles */
+    .kpi-card {
+        background: linear-gradient(135deg, rgba(17, 24, 39, 0.75) 0%, rgba(30, 41, 59, 0.55) 100%);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.3);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 1rem;
+    }
+    .kpi-card::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.03), transparent);
+        transform: translateX(-100%);
+        transition: transform 0.5s ease;
+    }
+    .kpi-card:hover::before {
+        transform: translateX(100%);
+    }
+    .kpi-card:hover {
+        transform: translateY(-4px);
+        border-color: rgba(99, 102, 241, 0.4);
+        box-shadow: 0 12px 25px -5px rgba(99, 102, 241, 0.2);
+    }
+    .kpi-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+    .kpi-title {
+        color: #94A3B8;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+    .kpi-icon {
+        font-size: 1.4rem;
+        color: #818CF8;
+        background: rgba(99, 102, 241, 0.12);
+        padding: 0.3rem 0.5rem;
+        border-radius: 8px;
+    }
+    .kpi-value {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #F8FAFC;
+        line-height: 1.2;
+        margin-top: 0.25rem;
     }
     
     /* Team Section Styles */
@@ -77,41 +146,53 @@ st.markdown(
         color: #818CF8;
         border-radius: 9999px;
         font-size: 0.85rem;
-        font-weight: 500;
-        margin-bottom: 0.5rem;
+        font-weight: 600;
+        margin-bottom: 0.75rem;
         border: 1px solid rgba(99, 102, 241, 0.25);
     }
     
     .team-title {
-        font-size: 1.15rem;
-        font-weight: 600;
+        font-size: 1.25rem;
+        font-weight: 700;
         margin-top: 0.25rem;
         color: #F8FAFC;
     }
     
     .team-members {
         color: #94A3B8;
-        margin-top: 0.5rem;
-        font-size: 0.9rem;
-        line-height: 1.4;
+        margin-top: 0.75rem;
+        font-size: 0.95rem;
+        line-height: 1.5;
     }
     
     /* Icon style */
     .step-icon {
-        font-size: 1.75rem;
-        margin-bottom: 0.25rem;
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+        color: #818CF8;
     }
     </style>
     """,
     unsafe_allow_html=True
 )
 
+def draw_kpi_card(col, title, value, icon):
+    col.markdown(f"""
+    <div class="kpi-card">
+        <div class="kpi-header">
+            <span class="kpi-title">{title}</span>
+            <span class="kpi-icon">{icon}</span>
+        </div>
+        <div class="kpi-value">{value}</div>
+    </div>
+    """, unsafe_allow_html=True)
+
 # Title Banner
 st.markdown(
     """
     <div class="title-banner">
         <h1>🛍️ NeuralRetail AI</h1>
-        <p>Executive Retail Analytics & Customer Intelligence Platform</p>
+        <p>Enterprise Retail Intelligence & Customer Analytics Platform</p>
     </div>
     """,
     unsafe_allow_html=True
@@ -140,11 +221,11 @@ if cleaned_csv_path.exists():
         
         # Draw metric cards on top
         col_m1, col_m2, col_m3, col_m4, col_m5 = st.columns(5)
-        col_m1.metric("Total Transactions", f"{row_count:,}")
-        col_m2.metric("Total Revenue", f"${revenue:,.2f}")
-        col_m3.metric("Unique Customers", f"{customers:,}")
-        col_m4.metric("Active SKUs", f"{skus:,}")
-        col_m5.metric("Timeline Scope", date_range)
+        draw_kpi_card(col_m1, "Total Transactions", f"{row_count:,}", "📊")
+        draw_kpi_card(col_m2, "Total Revenue", f"${revenue:,.2f}", "💰")
+        draw_kpi_card(col_m3, "Unique Customers", f"{customers:,}", "👥")
+        draw_kpi_card(col_m4, "Active SKUs", f"{skus:,}", "📦")
+        draw_kpi_card(col_m5, "Timeline Scope", date_range, "📅")
         st.divider()
     except Exception:
         pass
@@ -156,7 +237,7 @@ with col_left:
     st.markdown(
         """
         <div class="custom-card">
-            <h3>Executive Project Summary</h3>
+            <h3>Enterprise Project Summary</h3>
             <p>
                 <b>NeuralRetail AI</b> is a state-of-the-art academic retail intelligence platform developed by a 
                 collaborative team of 6 students. Using machine learning and statistical modeling on the historical 

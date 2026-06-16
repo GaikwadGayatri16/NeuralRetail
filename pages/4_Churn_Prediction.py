@@ -18,22 +18,119 @@ st.markdown(
     
     html, body, [class*="css"] {
         font-family: 'Outfit', 'Inter', sans-serif;
+        background-color: #0B0F19;
+    }
+    
+    /* Hero Section Styles */
+    .hero-section {
+        background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+    }
+    .hero-title {
+        font-size: 2.25rem;
+        font-weight: 800;
+        color: #F8FAFC;
+        margin: 0 0 0.5rem 0;
+        letter-spacing: -0.025em;
+    }
+    .hero-desc {
+        color: #E2E8F0;
+        font-size: 1.1rem;
+        margin: 0 0 0.75rem 0;
+        font-weight: 300;
+    }
+    .hero-purpose {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: rgba(99, 102, 241, 0.15);
+        color: #818CF8;
+        border: 1px solid rgba(99, 102, 241, 0.25);
+        border-radius: 8px;
+        padding: 0.35rem 0.75rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    /* KPI Card Styles */
+    .kpi-card {
+        background: linear-gradient(135deg, rgba(17, 24, 39, 0.75) 0%, rgba(30, 41, 59, 0.55) 100%);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.3);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 1rem;
+    }
+    .kpi-card::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.03), transparent);
+        transform: translateX(-100%);
+        transition: transform 0.5s ease;
+    }
+    .kpi-card:hover::before {
+        transform: translateX(100%);
+    }
+    .kpi-card:hover {
+        transform: translateY(-4px);
+        border-color: rgba(99, 102, 241, 0.4);
+        box-shadow: 0 12px 25px -5px rgba(99, 102, 241, 0.2);
+    }
+    .kpi-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+    .kpi-title {
+        color: #94A3B8;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+    .kpi-icon {
+        font-size: 1.4rem;
+        color: #818CF8;
+        background: rgba(99, 102, 241, 0.12);
+        padding: 0.3rem 0.5rem;
+        border-radius: 8px;
+    }
+    .kpi-value {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #F8FAFC;
+        line-height: 1.2;
+        margin-top: 0.25rem;
     }
     
     .search-panel {
-        background: rgba(30, 41, 59, 0.6);
+        background: linear-gradient(135deg, rgba(17, 24, 39, 0.7) 0%, rgba(30, 41, 59, 0.5) 100%);
         border: 1px solid rgba(99, 102, 241, 0.3);
-        border-radius: 12px;
-        padding: 1.5rem;
+        border-radius: 16px;
+        padding: 1.75rem;
         margin-bottom: 1.5rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.25);
     }
     
     .metric-panel {
-        background: rgba(30, 41, 59, 0.4);
-        border: 1px solid rgba(255, 255, 255, 0.05);
+        background: rgba(30, 41, 59, 0.5);
+        border: 1px solid rgba(255, 255, 255, 0.08);
         border-radius: 8px;
         padding: 1rem;
         text-align: center;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
     }
     
     .high-risk-badge {
@@ -64,10 +161,11 @@ st.markdown(
         font-size: 0.85rem;
     }
     
+    /* Insight Card Styles */
     .insight-card {
         background: rgba(239, 68, 68, 0.08);
         border: 1px solid rgba(239, 68, 68, 0.25);
-        border-radius: 8px;
+        border-radius: 12px;
         padding: 1.25rem;
         margin-top: 1.5rem;
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
@@ -80,15 +178,35 @@ st.markdown(
         display: flex;
         align-items: center;
         gap: 0.5rem;
+        font-size: 1.05rem;
     }
     </style>
     """,
     unsafe_allow_html=True
 )
 
-st.title("⚠️ Churn Prediction")
-st.markdown("Group 2 Churn Analytics Dashboard. Identify high-risk shoppers, diagnose churn probability distributions, and interpret model features.")
-st.divider()
+def draw_kpi_card(col, title, value, icon):
+    col.markdown(f"""
+    <div class="kpi-card">
+        <div class="kpi-header">
+            <span class="kpi-title">{title}</span>
+            <span class="kpi-icon">{icon}</span>
+        </div>
+        <div class="kpi-value">{value}</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+# Hero Section
+st.markdown(
+    """
+    <div class="hero-section">
+        <h1 class="hero-title">⚠️ Churn Prediction</h1>
+        <p class="hero-desc">Identify high-risk shoppers, diagnose churn probability distributions, and interpret model features.</p>
+        <span class="hero-purpose">🎯 Business Purpose: Mitigate customer churn and retain value through early detection of declining transaction frequency.</span>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
 BASE_DIR = Path(__file__).resolve().parents[1]
 predictions_path = BASE_DIR / "outputs" / "churn_predictions.csv"
@@ -121,10 +239,10 @@ else:
     
     # Display top-level KPIs
     col1, col2, col3, col4 = st.columns(4)
-    col1.metric("Average Churn Probability", f"{avg_churn_prob:.1%}")
-    col2.metric("High-Risk Accounts (Prob ≥ 70%)", f"{high_risk_count:,}")
-    col3.metric("Ground-Truth Churned", f"{ground_truth_churned:,}")
-    col4.metric("Model AUC Score", f"{roc_auc:.4f}")
+    draw_kpi_card(col1, "Average Churn Probability", f"{avg_churn_prob:.1%}", "📊")
+    draw_kpi_card(col2, "High-Risk Accounts (Prob ≥ 70%)", f"{high_risk_count:,}", "🚨")
+    draw_kpi_card(col3, "Ground-Truth Churned", f"{ground_truth_churned:,}", "📉")
+    draw_kpi_card(col4, "Model AUC Score", f"{roc_auc:.4f}", "🏆")
     
     st.divider()
     
@@ -146,14 +264,21 @@ else:
             labels={"ChurnProbability": "Churn Probability Level"},
             color_discrete_sequence=["#EF4444"]
         )
-        fig_dist.update_layout(template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
+        fig_dist.update_layout(
+            template="plotly_dark", 
+            paper_bgcolor="rgba(0,0,0,0)", 
+            plot_bgcolor="rgba(0,0,0,0)",
+            yaxis=dict(showgrid=True, gridcolor="rgba(255,255,255,0.05)"),
+            xaxis=dict(showgrid=True, gridcolor="rgba(255,255,255,0.05)"),
+            margin=dict(l=40, r=20, t=50, b=40)
+        )
         st.plotly_chart(fig_dist, use_container_width=True)
         
         # Dynamic Insight
         st.markdown(
             f"""
             <div class="insight-card">
-                <div class="insight-title">💡 Risk Distribution Insight</div>
+                <div class="insight-title">📌 Key Insight: Churn Risk Distribution</div>
                 <p style="margin:0; color:#E2E8F0;">
                     A total of <b>{high_risk_count:,}</b> customers have exceeded a <b>70%</b> probability of churn. 
                     The histogram displays a bimodal pattern typical of datasets split between highly active shoppers and dormant profiles.
@@ -235,7 +360,7 @@ else:
         st.markdown(
             f"""
             <div class="insight-card">
-                <div class="insight-title">💡 Target Marketing Campaign Insight</div>
+                <div class="insight-title">📌 Key Insight: Target Marketing Campaigns</div>
                 <p style="margin:0; color:#E2E8F0;">
                     Targeting this subgroup preserves customer acquisition costs. A coupon or win-back offer sent to these <b>{len(high_risk_list)}</b> customers has a high potential rate of return before they cross into permanent churn.
                 </p>
@@ -266,7 +391,14 @@ else:
                 title=f"Feature Weights ({model_dict['model_name']})",
                 color="Importance", color_continuous_scale="Reds"
             )
-            fig_feat.update_layout(template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
+            fig_feat.update_layout(
+                template="plotly_dark", 
+                paper_bgcolor="rgba(0,0,0,0)", 
+                plot_bgcolor="rgba(0,0,0,0)",
+                yaxis=dict(showgrid=True, gridcolor="rgba(255,255,255,0.05)"),
+                xaxis=dict(showgrid=True, gridcolor="rgba(255,255,255,0.05)"),
+                margin=dict(l=40, r=20, t=50, b=40)
+            )
             st.plotly_chart(fig_feat, use_container_width=True)
             
             # Dynamic Insight
@@ -274,7 +406,7 @@ else:
             st.markdown(
                 f"""
                 <div class="insight-card">
-                    <div class="insight-title">💡 Feature Drivers Insight</div>
+                    <div class="insight-title">📌 Key Insight: Churn Drivers</div>
                     <p style="margin:0; color:#E2E8F0;">
                         The most significant predictor of customer retention behavior is <b>{top_feat_name}</b>. 
                         Changes in this specific behavioral signature heavily influence the model's output scores.
@@ -299,14 +431,17 @@ else:
             yaxis_title="True Positive Rate",
             template="plotly_dark",
             paper_bgcolor="rgba(0,0,0,0)",
-            plot_bgcolor="rgba(0,0,0,0)"
+            plot_bgcolor="rgba(0,0,0,0)",
+            xaxis=dict(showgrid=True, gridcolor="rgba(255,255,255,0.05)"),
+            yaxis=dict(showgrid=True, gridcolor="rgba(255,255,255,0.05)"),
+            margin=dict(l=40, r=20, t=50, b=40)
         )
         st.plotly_chart(fig_roc, use_container_width=True)
         
         st.markdown(
             f"""
             <div class="insight-card">
-                <div class="insight-title">💡 ROC Diagnostic Insight</div>
+                <div class="insight-title">📌 Key Insight: ROC Accuracy Diagnostic</div>
                 <p style="margin:0; color:#E2E8F0;">
                     An Area Under the Curve (AUC) of <b>{roc_auc:.4f}</b> shows highly robust model performance, indicating that the model 
                     retains a high capability to differentiate between active and churning customer cohorts.
@@ -332,7 +467,12 @@ else:
             color_continuous_scale="Reds",
             title="Confusion Matrix Heatmap"
         )
-        fig_cm.update_layout(template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
+        fig_cm.update_layout(
+            template="plotly_dark", 
+            paper_bgcolor="rgba(0,0,0,0)", 
+            plot_bgcolor="rgba(0,0,0,0)",
+            margin=dict(l=40, r=20, t=50, b=40)
+        )
         st.plotly_chart(fig_cm, use_container_width=True)
         
         # Calculate rates
@@ -349,7 +489,7 @@ else:
         st.markdown(
             f"""
             <div class="insight-card">
-                <div class="insight-title">💡 Model Diagnostics Summary</div>
+                <div class="insight-title">📌 Key Insight: Model Diagnostics Summary</div>
                 <p style="margin:0; color:#E2E8F0;">
                     Out of <b>{(tp+fn):,}</b> actual churned accounts, the classifier successfully identified <b>{tp:,}</b> profiles (Recall of <b>{recall:.2%}</b>), 
                     ensuring that promotional outreach captures the maximum percentage of real risk cases.
@@ -358,3 +498,4 @@ else:
             """,
             unsafe_allow_html=True
         )
+
