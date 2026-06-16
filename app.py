@@ -19,7 +19,7 @@ st.markdown(
     /* Global Styles */
     .main .block-container {
         font-family: 'Outfit', 'Inter', sans-serif;
-        padding-top: 2rem;
+        padding-top: 1.5rem;
     }
     
     h1, h2, h3, h4, h5, h6 {
@@ -31,24 +31,24 @@ st.markdown(
     /* Premium Title Banner */
     .title-banner {
         background: linear-gradient(135deg, #4F46E5 0%, #06B6D4 100%);
-        padding: 3rem 2rem;
+        padding: 2.5rem 2rem;
         border-radius: 16px;
         box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.3);
-        margin-bottom: 2.5rem;
+        margin-bottom: 2rem;
         text-align: center;
     }
     
     .title-banner h1 {
         margin: 0;
-        font-size: 3rem;
+        font-size: 2.75rem;
         letter-spacing: -0.025em;
         text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
     }
     
     .title-banner p {
         color: #E2E8F0;
-        font-size: 1.25rem;
-        margin-top: 0.75rem;
+        font-size: 1.15rem;
+        margin-top: 0.5rem;
         font-weight: 300;
     }
     
@@ -57,49 +57,49 @@ st.markdown(
         background: rgba(30, 41, 59, 0.7);
         border: 1px solid rgba(255, 255, 255, 0.05);
         border-radius: 12px;
-        padding: 1.75rem;
-        margin-bottom: 1.5rem;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        padding: 1.5rem;
+        margin-bottom: 1.25rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
     
     .custom-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 12px 20px -8px rgba(99, 102, 241, 0.3);
-        border-color: rgba(99, 102, 241, 0.3);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.2);
+        border-color: rgba(99, 102, 241, 0.2);
     }
     
     /* Team Section Styles */
     .team-badge {
         display: inline-block;
         padding: 0.25rem 0.75rem;
-        background: rgba(99, 102, 241, 0.2);
+        background: rgba(99, 102, 241, 0.15);
         color: #818CF8;
         border-radius: 9999px;
-        font-size: 0.875rem;
+        font-size: 0.85rem;
         font-weight: 500;
-        margin-bottom: 0.75rem;
-        border: 1px solid rgba(99, 102, 241, 0.3);
+        margin-bottom: 0.5rem;
+        border: 1px solid rgba(99, 102, 241, 0.25);
     }
     
     .team-title {
-        font-size: 1.25rem;
+        font-size: 1.15rem;
         font-weight: 600;
-        margin-top: 0.5rem;
+        margin-top: 0.25rem;
         color: #F8FAFC;
     }
     
     .team-members {
         color: #94A3B8;
         margin-top: 0.5rem;
-        font-size: 0.95rem;
-        line-height: 1.5;
+        font-size: 0.9rem;
+        line-height: 1.4;
     }
     
     /* Icon style */
     .step-icon {
-        font-size: 2rem;
-        margin-bottom: 0.5rem;
+        font-size: 1.75rem;
+        margin-bottom: 0.25rem;
     }
     </style>
     """,
@@ -111,11 +111,43 @@ st.markdown(
     """
     <div class="title-banner">
         <h1>🛍️ NeuralRetail AI</h1>
-        <p>Intelligent Retail Analytics & Customer Intelligence Platform</p>
+        <p>Executive Retail Analytics & Customer Intelligence Platform</p>
     </div>
     """,
     unsafe_allow_html=True
 )
+
+# Data availability check
+BASE_DIR = Path(__file__).resolve().parent
+cleaned_csv_path = BASE_DIR / "data" / "processed" / "cleaned_retail.csv"
+
+# KPI metrics header if data is available
+if cleaned_csv_path.exists():
+    try:
+        # Load simple stats from metadata or cached info
+        @st.cache_data
+        def load_summary_stats(path):
+            df = pd.read_csv(path, usecols=["Customer ID", "StockCode", "TotalPrice", "InvoiceDate"])
+            df["InvoiceDate"] = pd.to_datetime(df["InvoiceDate"])
+            total_rev = df["TotalPrice"].sum()
+            num_cust = df["Customer ID"].nunique()
+            num_skus = df["StockCode"].nunique()
+            min_date = df["InvoiceDate"].min().strftime('%b %Y')
+            max_date = df["InvoiceDate"].max().strftime('%b %Y')
+            return len(df), total_rev, num_cust, num_skus, f"{min_date} - {max_date}"
+            
+        row_count, revenue, customers, skus, date_range = load_summary_stats(cleaned_csv_path)
+        
+        # Draw metric cards on top
+        col_m1, col_m2, col_m3, col_m4, col_m5 = st.columns(5)
+        col_m1.metric("Total Transactions", f"{row_count:,}")
+        col_m2.metric("Total Revenue", f"${revenue:,.2f}")
+        col_m3.metric("Unique Customers", f"{customers:,}")
+        col_m4.metric("Active SKUs", f"{skus:,}")
+        col_m5.metric("Timeline Scope", date_range)
+        st.divider()
+    except Exception:
+        pass
 
 # Project Overview & Quick Stats
 col_left, col_right = st.columns([2, 1])
@@ -124,7 +156,7 @@ with col_left:
     st.markdown(
         """
         <div class="custom-card">
-            <h3>Project Description</h3>
+            <h3>Executive Project Summary</h3>
             <p>
                 <b>NeuralRetail AI</b> is a state-of-the-art academic retail intelligence platform developed by a 
                 collaborative team of 6 students. Using machine learning and statistical modeling on the historical 
@@ -132,29 +164,29 @@ with col_left:
                 customer clusters, churn prediction, demand forecasting, and inventory optimizations.
             </p>
             <p>
-                Navigate through the sidebar to explore in-depth dashboards corresponding to the responsibilities 
-                of our three specialized sub-teams.
+                Use the sidebar to navigate through the executive analytics dashboards, where insights are categorized 
+                by focus group and pipeline objectives.
             </p>
         </div>
         """,
         unsafe_allow_html=True
     )
     
-    st.markdown("### 📊 Project Objectives")
+    st.markdown("### 📊 Project Focus Areas")
     
     obj_col1, obj_col2 = st.columns(2)
     with obj_col1:
         st.markdown(
             """
             <div class="custom-card">
-                <div class="step-icon">🎯</div>
-                <h4>Customer Intelligence</h4>
-                <p>Segment shoppers via RFM modeling to identify VIPs and target at-risk groups using KMeans, DBSCAN, and GMM.</p>
+                <div class="step-icon">👥</div>
+                <h4>Customer Intelligence & Segmentation</h4>
+                <p>Segment shoppers via RFM modeling to identify VIPs and target at-risk groups using KMeans, DBSCAN, and GMM algorithms.</p>
             </div>
             <div class="custom-card">
-                <div class="step-icon">⏱️</div>
-                <h4>Predictive Churn</h4>
-                <p>Flag customers likely to drift away using advanced classification models trained on historical intervals.</p>
+                <div class="step-icon">⚠️</div>
+                <h4>Predictive Churn Analytics</h4>
+                <p>Flag customers likely to churn using classification models (Logistic Regression, Random Forest, XGBoost) trained on temporal cuts.</p>
             </div>
             """,
             unsafe_allow_html=True
@@ -165,12 +197,12 @@ with col_left:
             <div class="custom-card">
                 <div class="step-icon">📈</div>
                 <h4>Demand Forecasting</h4>
-                <p>Estimate future daily transaction values utilizing Prophet and XGBoost time-series models.</p>
+                <p>Estimate future daily transaction values utilizing Prophet and XGBoost time-series models for sales planning.</p>
             </div>
             <div class="custom-card">
                 <div class="step-icon">📦</div>
-                <h4>Inventory Control</h4>
-                <p>Run ABC Analysis and automate reorder planning (ROP, Safety Stock, EOQ) to keep shelves optimally stocked.</p>
+                <h4>Inventory Control & Optimization</h4>
+                <p>Run ABC Analysis and automate reorder planning (ROP, Safety Stock, EOQ) to keep supply chain levels optimized.</p>
             </div>
             """,
             unsafe_allow_html=True
@@ -192,7 +224,7 @@ with col_right:
         </div>
         
         <div class="custom-card">
-            <span class="team-badge" style="background: rgba(16, 185, 129, 0.2); color: #34D399; border-color: rgba(16, 185, 129, 0.3);">Group 2</span>
+            <span class="team-badge" style="background: rgba(16, 185, 129, 0.15); color: #34D399; border-color: rgba(16, 185, 129, 0.25);">Group 2</span>
             <div class="team-title">Churn Analytics Team</div>
             <div class="team-members">
                 • Churn Classification Modeling<br>
@@ -202,7 +234,7 @@ with col_right:
         </div>
         
         <div class="custom-card">
-            <span class="team-badge" style="background: rgba(245, 158, 11, 0.2); color: #FBBF24; border-color: rgba(245, 158, 11, 0.3);">Group 3</span>
+            <span class="team-badge" style="background: rgba(245, 158, 11, 0.15); color: #FBBF24; border-color: rgba(245, 158, 11, 0.25);">Group 3</span>
             <div class="team-title">Forecast & Inventory Team</div>
             <div class="team-members">
                 • Time-Series Demand Forecasting<br>
@@ -215,17 +247,13 @@ with col_right:
     )
 
 # File status and data overview section
-st.markdown("### 🗄️ Dataset Quick Overview")
-
-# Try to load cleaned dataset for preview
-BASE_DIR = Path(__file__).resolve().parent
-cleaned_csv_path = BASE_DIR / "data" / "processed" / "cleaned_retail.csv"
+st.markdown("### 🗄️ Dataset Preview")
 
 if cleaned_csv_path.exists():
     try:
         # Load a small sample to avoid memory pressure
         df_preview = pd.read_csv(cleaned_csv_path, nrows=5)
-        st.success("✅ Cleaned retail dataset successfully loaded and cached.")
+        st.success("✅ Cleaned retail dataset successfully loaded.")
         st.dataframe(df_preview, use_container_width=True)
     except Exception as e:
         st.warning(f"⚠️ Cleaned dataset found but failed to load preview: {e}")

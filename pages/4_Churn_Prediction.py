@@ -10,7 +10,7 @@ from sklearn.metrics import confusion_matrix, roc_curve, auc
 # Set page settings
 st.set_page_config(page_title="Churn Prediction - NeuralRetail AI", page_icon="⚠️", layout="wide")
 
-# Custom CSS
+# Custom premium CSS
 st.markdown(
     """
     <style>
@@ -21,11 +21,11 @@ st.markdown(
     }
     
     .search-panel {
-        background: rgba(30, 41, 59, 0.7);
+        background: rgba(30, 41, 59, 0.6);
         border: 1px solid rgba(99, 102, 241, 0.3);
         border-radius: 12px;
         padding: 1.5rem;
-        margin-bottom: 2rem;
+        margin-bottom: 1.5rem;
     }
     
     .metric-panel {
@@ -63,13 +63,32 @@ st.markdown(
         font-weight: 600;
         font-size: 0.85rem;
     }
+    
+    .insight-card {
+        background: rgba(239, 68, 68, 0.08);
+        border: 1px solid rgba(239, 68, 68, 0.25);
+        border-radius: 8px;
+        padding: 1.25rem;
+        margin-top: 1.5rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    }
+    
+    .insight-title {
+        color: #F87171;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
     </style>
     """,
     unsafe_allow_html=True
 )
 
 st.title("⚠️ Churn Prediction")
-st.markdown("Group 2 Churn Analytics Dashboard. Predict customer churn probability and analyze risk factors.")
+st.markdown("Group 2 Churn Analytics Dashboard. Identify high-risk shoppers, diagnose churn probability distributions, and interpret model features.")
+st.divider()
 
 BASE_DIR = Path(__file__).resolve().parents[1]
 predictions_path = BASE_DIR / "outputs" / "churn_predictions.csv"
@@ -89,27 +108,78 @@ else:
     df_churn = load_churn_data(predictions_path)
     model_dict = load_churn_model(model_path)
     
-    # Clean customer IDs to strings for easy search
     df_churn["Customer ID"] = df_churn["Customer ID"].astype(str)
     
-    # 1. Interactive Customer Search
-    st.markdown("### 🔍 Customer Risk Lookup")
+    # Precalculate metrics for header KPI cards
+    avg_churn_prob = df_churn["ChurnProbability"].mean()
+    high_risk_count = len(df_churn[df_churn["ChurnProbability"] >= 0.70])
+    ground_truth_churned = len(df_churn[df_churn["IsChurned_GroundTruth"] == 1])
     
-    with st.container():
+    # Calculate model AUC dynamically for the metric card
+    fpr, tpr, _ = roc_curve(df_churn["IsChurned_GroundTruth"], df_churn["ChurnProbability"])
+    roc_auc = auc(fpr, tpr)
+    
+    # Display top-level KPIs
+    col1, col2, col3, col4 = st.columns(4)
+    col1.metric("Average Churn Probability", f"{avg_churn_prob:.1%}")
+    col2.metric("High-Risk Accounts (Prob ≥ 70%)", f"{high_risk_count:,}")
+    col3.metric("Ground-Truth Churned", f"{ground_truth_churned:,}")
+    col4.metric("Model AUC Score", f"{roc_auc:.4f}")
+    
+    st.divider()
+    
+    # Create Tabs
+    tab_dist, tab_risk, tab_feat, tab_roc, tab_perf = st.tabs([
+        "📊 Churn Distribution",
+        "🎯 High Risk Customers",
+        "🔑 Feature Importance",
+        "📈 ROC Curve",
+        "⚙️ Model Performance"
+    ])
+    
+    # 1. CHURN DISTRIBUTION
+    with tab_dist:
+        st.subheader("Distribution of Customer Churn Probabilities")
+        fig_dist = px.histogram(
+            df_churn, x="ChurnProbability", nbins=50,
+            title="Customer Count by Churn Risk Probability",
+            labels={"ChurnProbability": "Churn Probability Level"},
+            color_discrete_sequence=["#EF4444"]
+        )
+        fig_dist.update_layout(template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
+        st.plotly_chart(fig_dist, use_container_width=True)
+        
+        # Dynamic Insight
+        st.markdown(
+            f"""
+            <div class="insight-card">
+                <div class="insight-title">💡 Risk Distribution Insight</div>
+                <p style="margin:0; color:#E2E8F0;">
+                    A total of <b>{high_risk_count:,}</b> customers have exceeded a <b>70%</b> probability of churn. 
+                    The histogram displays a bimodal pattern typical of datasets split between highly active shoppers and dormant profiles.
+                </p>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+        
+    # 2. HIGH RISK CUSTOMERS
+    with tab_risk:
+        st.subheader("Target Marketing Campaign list & Risk Lookup")
+        
+        # Risk Lookup Search
         st.markdown('<div class="search-panel">', unsafe_allow_html=True)
-        search_id = st.text_input("Enter Customer ID to assess churn risk:", placeholder="e.g. 17850")
+        st.markdown("#### 🔍 Customer Risk Profile Assessment")
+        search_id = st.text_input("Enter Customer ID:", placeholder="e.g. 17850")
         
         if search_id:
-            # Match customer
             cust_row = df_churn[df_churn["Customer ID"] == search_id.strip()]
-            
             if cust_row.empty:
-                st.error(f"Customer ID `{search_id}` not found in the database.")
+                st.error(f"Customer ID `{search_id}` not found.")
             else:
                 row = cust_row.iloc[0]
                 prob = row["ChurnProbability"]
                 
-                # Assign risk category
                 if prob >= 0.70:
                     risk_badge = '<span class="high-risk-badge">High Risk (🚨)</span>'
                 elif prob >= 0.30:
@@ -117,44 +187,67 @@ else:
                 else:
                     risk_badge = '<span class="low-risk-badge">Low Risk (✅)</span>'
                     
-                st.markdown(f"#### Customer Churn Risk Level: {risk_badge}", unsafe_allow_html=True)
+                st.markdown(f"**Customer Status:** {risk_badge}", unsafe_allow_html=True)
                 
-                # Show key stats
                 col_c1, col_c2, col_c3, col_c4 = st.columns(4)
-                with col_c1:
-                    st.markdown(f'<div class="metric-panel"><b>Recency</b><br>{int(row["Recency"])} days</div>', unsafe_allow_html=True)
-                with col_c2:
-                    st.markdown(f'<div class="metric-panel"><b>Frequency</b><br>{int(row["Frequency"])} orders</div>', unsafe_allow_html=True)
-                with col_c3:
-                    st.markdown(f'<div class="metric-panel"><b>Monetary</b><br>${row["Monetary"]:,.2f}</div>', unsafe_allow_html=True)
-                with col_c4:
-                    st.markdown(f'<div class="metric-panel"><b>Lifetime Value (LTV)</b><br>${row["LifetimeRevenue"]:,.2f}</div>', unsafe_allow_html=True)
-                    
-                st.markdown(f"**Customer Age (Days since first purchase):** {int(row['CustomerAgeDays'])} days")
-                st.markdown(f"**Days Since Last Purchase:** {int(row['DaysSinceLastPurchase'])} days")
-                st.markdown(f"**Average Order Value:** ${row['AverageOrderValue']:.2f}")
+                col_c1.markdown(f'<div class="metric-panel"><b>Recency</b><br>{int(row["Recency"])} days</div>', unsafe_allow_html=True)
+                col_c2.markdown(f'<div class="metric-panel"><b>Frequency</b><br>{int(row["Frequency"])} orders</div>', unsafe_allow_html=True)
+                col_c3.markdown(f'<div class="metric-panel"><b>Monetary</b><br>${row["Monetary"]:,.2f}</div>', unsafe_allow_html=True)
+                col_c4.markdown(f'<div class="metric-panel"><b>LTV</b><br>${row["LifetimeRevenue"]:,.2f}</div>', unsafe_allow_html=True)
                 
+                st.markdown(
+                    f"""
+                    <div style="margin-top: 1rem;">
+                        • <b>Shopper Age:</b> {int(row['CustomerAgeDays'])} days<br>
+                        • <b>Days Since Last Purchase:</b> {int(row['DaysSinceLastPurchase'])} days<br>
+                        • <b>Average Order Value (AOV):</b> ${row['AverageOrderValue']:.2f}
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
         st.markdown('</div>', unsafe_allow_html=True)
         
-    # 2. General Churn Analytics
-    col_g1, col_g2 = st.columns(2)
-    
-    with col_g1:
-        st.markdown("### 📊 Churn Probability Distribution")
-        fig_dist = px.histogram(
-            df_churn, x="ChurnProbability", nbins=50,
-            title="Distribution of Churn Probabilities",
-            labels={"ChurnProbability": "Churn Probability"},
-            color_discrete_sequence=["#EF4444"]
+        # High Risk Target Group
+        st.markdown("#### 📋 High Churn Risk Target Group (Top 100 Active-at-Risk)")
+        
+        high_risk_list = df_churn[
+            (df_churn["ChurnProbability"] >= 0.70) & 
+            (df_churn["DaysSinceLastPurchase"] <= 90)
+        ].sort_values(by="ChurnProbability", ascending=False).head(100)
+        
+        if high_risk_list.empty:
+            high_risk_list = df_churn[df_churn["DaysSinceLastPurchase"] <= 90].sort_values(by="ChurnProbability", ascending=False).head(100)
+            
+        st.markdown("These customers have purchased within the last 90 days, but show high probabilities of churning based on their transaction patterns (dropping frequency, lowering spend). **Target them immediately with win-back campaigns!**")
+        st.dataframe(
+            high_risk_list[[
+                "Customer ID", "Recency", "Frequency", "Monetary", "AverageOrderValue", "ChurnProbability"
+            ]].style.format({
+                "ChurnProbability": "{:.2%}",
+                "Monetary": "${:,.2f}",
+                "AverageOrderValue": "${:,.2f}",
+                "Recency": "{:.0f} days",
+                "Frequency": "{:.0f} orders"
+            }),
+            use_container_width=True
         )
-        fig_dist.update_layout(template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
-        st.plotly_chart(fig_dist, use_container_width=True)
         
-    with col_g2:
-        # Display Feature Importance
-        st.markdown("### 🔑 Model Feature Importance")
+        st.markdown(
+            f"""
+            <div class="insight-card">
+                <div class="insight-title">💡 Target Marketing Campaign Insight</div>
+                <p style="margin:0; color:#E2E8F0;">
+                    Targeting this subgroup preserves customer acquisition costs. A coupon or win-back offer sent to these <b>{len(high_risk_list)}</b> customers has a high potential rate of return before they cross into permanent churn.
+                </p>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
         
-        # Get importances from model object
+    # 3. FEATURE IMPORTANCE
+    with tab_feat:
+        st.subheader("Model Feature Weights & Drivers")
+        
         model_obj = model_dict["model"]
         features = model_dict["features"]
         
@@ -170,49 +263,32 @@ else:
             
             fig_feat = px.bar(
                 feat_df, x="Importance", y="Feature", orientation="h",
-                title=f"Feature Importance ({model_dict['model_name']})",
+                title=f"Feature Weights ({model_dict['model_name']})",
                 color="Importance", color_continuous_scale="Reds"
             )
             fig_feat.update_layout(template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
             st.plotly_chart(fig_feat, use_container_width=True)
-        else:
-            st.info("Feature importance not available for this model type.")
             
-    # 3. Target Marketing: List of high risk customers
-    st.markdown("### 🎯 High Churn Risk Target Group (Top 100)")
-    # Filter customers who are active but have high churn probability (exclude those who already have ground truth churn, i.e. Recency > 90)
-    high_risk_list = df_churn[
-        (df_churn["ChurnProbability"] >= 0.70) & 
-        (df_churn["DaysSinceLastPurchase"] <= 90)
-    ].sort_values(by="ChurnProbability", ascending=False).head(100)
-    
-    if high_risk_list.empty:
-        # If none fit this strict criteria, just show the highest probability active customers
-        high_risk_list = df_churn[df_churn["DaysSinceLastPurchase"] <= 90].sort_values(by="ChurnProbability", ascending=False).head(100)
-        
-    st.markdown("These customers have purchased within the last 90 days, but show high probabilities of churning based on their transaction patterns (low frequency, dropping spend, etc.). **Target them with campaigns immediately!**")
-    st.dataframe(
-        high_risk_list[[
-            "Customer ID", "Recency", "Frequency", "Monetary", "AverageOrderValue", "ChurnProbability"
-        ]].style.format({
-            "ChurnProbability": "{:.2%}",
-            "Monetary": "${:,.2f}",
-            "AverageOrderValue": "${:,.2f}",
-            "Recency": "{:.0f} days",
-            "Frequency": "{:.0f} orders"
-        }),
-        use_container_width=True
-    )
-    
-    # 4. Model Performance charts
-    st.markdown("### 📈 Churn Classifier Diagnostics")
-    
-    diag_col1, diag_col2 = st.columns(2)
-    
-    with diag_col1:
-        # ROC Curve
-        fpr, tpr, _ = roc_curve(df_churn["IsChurned_GroundTruth"], df_churn["ChurnProbability"])
-        roc_auc = auc(fpr, tpr)
+            # Dynamic Insight
+            top_feat_name = feat_df.sort_values(by="Importance", ascending=False).iloc[0]["Feature"]
+            st.markdown(
+                f"""
+                <div class="insight-card">
+                    <div class="insight-title">💡 Feature Drivers Insight</div>
+                    <p style="margin:0; color:#E2E8F0;">
+                        The most significant predictor of customer retention behavior is <b>{top_feat_name}</b>. 
+                        Changes in this specific behavioral signature heavily influence the model's output scores.
+                    </p>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+        else:
+            st.info("Feature importance metrics not available for this classifier architecture.")
+            
+    # 4. ROC CURVE
+    with tab_roc:
+        st.subheader("Receiver Operating Characteristic (ROC) Diagnostic")
         
         fig_roc = go.Figure()
         fig_roc.add_trace(go.Scatter(x=fpr, y=tpr, mode="lines", name=f"ROC Curve (AUC = {roc_auc:.4f})", line=dict(color="#EF4444", width=3)))
@@ -227,20 +303,58 @@ else:
         )
         st.plotly_chart(fig_roc, use_container_width=True)
         
-    with diag_col2:
-        # Confusion Matrix
+        st.markdown(
+            f"""
+            <div class="insight-card">
+                <div class="insight-title">💡 ROC Diagnostic Insight</div>
+                <p style="margin:0; color:#E2E8F0;">
+                    An Area Under the Curve (AUC) of <b>{roc_auc:.4f}</b> shows highly robust model performance, indicating that the model 
+                    retains a high capability to differentiate between active and churning customer cohorts.
+                </p>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+        
+    # 5. MODEL PERFORMANCE
+    with tab_perf:
+        st.subheader("Confusion Matrix & Binary Classification Stats")
+        
         y_true = df_churn["IsChurned_GroundTruth"]
         y_pred = df_churn["PredictedChurn"]
         cm = confusion_matrix(y_true, y_pred)
         
-        # Heatmap
         fig_cm = px.imshow(
             cm, text_auto=True,
             labels=dict(x="Predicted Label", y="True Label"),
             x=["Active", "Churned"],
             y=["Active", "Churned"],
             color_continuous_scale="Reds",
-            title="Confusion Matrix"
+            title="Confusion Matrix Heatmap"
         )
         fig_cm.update_layout(template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
         st.plotly_chart(fig_cm, use_container_width=True)
+        
+        # Calculate rates
+        tn, fp, fn, tp = cm.ravel()
+        recall = tp / (tp + fn)
+        precision = tp / (tp + fp)
+        accuracy = (tp + tn) / (tp + tn + fp + fn)
+        
+        col_m1, col_m2, col_m3 = st.columns(3)
+        col_m1.metric("Precision", f"{precision:.2%}", "TP / (TP + FP)")
+        col_m2.metric("Recall (Sensitivity)", f"{recall:.2%}", "TP / (TP + FN)")
+        col_m3.metric("Overall Accuracy", f"{accuracy:.2%}", "(TP + TN) / Total")
+        
+        st.markdown(
+            f"""
+            <div class="insight-card">
+                <div class="insight-title">💡 Model Diagnostics Summary</div>
+                <p style="margin:0; color:#E2E8F0;">
+                    Out of <b>{(tp+fn):,}</b> actual churned accounts, the classifier successfully identified <b>{tp:,}</b> profiles (Recall of <b>{recall:.2%}</b>), 
+                    ensuring that promotional outreach captures the maximum percentage of real risk cases.
+                </p>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
